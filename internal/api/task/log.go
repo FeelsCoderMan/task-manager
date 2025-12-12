@@ -7,7 +7,7 @@ import (
 
 const (
 	customLogPrefix = "custom-task-service"
-	flags           = log.Ldate | log.Lshortfile
+	flags           = log.Ldate
 )
 
 type TaskLogger interface {
