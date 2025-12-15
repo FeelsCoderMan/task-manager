@@ -1,0 +1,68 @@
+h1 {
+    text-align: center;
+}
+
+.task-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 350px;
+    margin-left: -220px;
+    height: 410px;
+    margin-top: -250px;
+    padding: 16px;
+    border: solid 1px #000;
+    border-radius: 15px;
+    background-color: #1c1c1c;
+    color: #ddd;
+    overflow: hidden;
+}
+
+.task-dialog input {
+    display: block;
+    width: 100%;
+    padding: 4px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+}
+
+.task-dialog label {
+    font-size: 1rem;
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    margin-bottom: 5px;
+    text-align: left;
+    font-weight: bold;
+}
+
+.task-dialog select {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    margin-bottom: 12px;
+}
+
+.task-dialog-close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.task-dialog-submit-button {
+    display: block;
+    text-align: center;
+    border: solid 1px #000;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+    padding: 5px;
+    margin: 0 auto;
+}
+
+dialog::backdrop {
+    backdrop-filter: blur(1px);
+}

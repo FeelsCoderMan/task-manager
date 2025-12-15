@@ -1,0 +1,23 @@
+.task-list-title {
+    padding-bottom: 10px;
+}
+
+.task-list-circle {
+    border: 1.6px solid aqua;
+    border-radius: 50%;
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
+.task-list-el-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 16px auto;
+}
+
+.task-list-el {
+    flex-grow: 1;
+}

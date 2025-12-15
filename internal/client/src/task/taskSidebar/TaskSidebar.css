@@ -1,0 +1,27 @@
+.task-sidebar-header {
+    width: 250px;
+    min-height: 250px;
+    height: 100%;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 150px;
+}
+
+.task-sidebar-title {
+    margin-bottom: 12px;
+}
+
+.new-task-button {
+    display: block;
+    width: 80%;
+    border: none;
+    background: none;
+    text-align: left;
+}
+
+.new-task-button-text {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
