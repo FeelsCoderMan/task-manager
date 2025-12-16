@@ -21,6 +21,10 @@ button {
     display: flex;
 }
 
+.task-sidebar {
+    border-right: solid 1px rgba(255, 255, 255, 0.12);
+}
+
 .task-column {
     padding: 12px;
 }

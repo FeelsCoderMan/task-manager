@@ -1,5 +1,6 @@
 import { ReactEventHandler, useEffect, useRef } from "react";
 import "./TaskForm.css";
+import { createTask } from "../../services/api";
 
 interface TaskParams {
   showModal: boolean;
@@ -10,10 +11,16 @@ function TaskForm({ showModal, closeModal }: TaskParams) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   function handleTaskSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    console.log(Object.fromEntries(formData.entries()));
+    const handleCreateTask = async () => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+      const serviceResponse = await createTask(formData);
+
+      if (serviceResponse.success) {
+      }
+    };
+    handleCreateTask();
   }
 
   useEffect(() => {

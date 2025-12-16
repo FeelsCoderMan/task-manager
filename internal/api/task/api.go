@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 
 	"github.com/FeelsCoderMan/task-manager/internal/api/httpError"
 )
@@ -15,9 +16,26 @@ type handler struct {
 	service Service
 }
 
+type HttpResponseSuccess interface {
+	IsSuccess() bool
+}
+
+func (hr *httpResponseSuccess) IsSuccess() bool {
+	return hr.Success
+}
+
+func (hr *httpResponseSuccessMultiple) IsSuccess() bool {
+	return hr.Success
+}
+
 type httpResponseSuccess struct {
 	Success bool  `json:"success"`
 	Task    *Task `json:"task,omitempty"`
+}
+
+type httpResponseSuccessMultiple struct {
+	Success bool   `json:"success"`
+	Tasks   []Task `json:"tasks,omitempty"`
 }
 
 type httpResponseFailed struct {
@@ -45,6 +63,13 @@ func newHttpResponseSuccess(task *Task) *httpResponseSuccess {
 	}
 }
 
+func newHttpResponseSuccessMultiple(tasks []Task) *httpResponseSuccessMultiple {
+	return &httpResponseSuccessMultiple{
+		Success: true,
+		Tasks:   tasks,
+	}
+}
+
 func setJsonHeaders(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
@@ -56,7 +81,7 @@ func jsonError(w http.ResponseWriter, error string, code int) {
 	json.NewEncoder(w).Encode(newHttpResponseFailed(error))
 }
 
-func jsonSuccess(w http.ResponseWriter, hr *httpResponseSuccess) {
+func jsonSuccess(w http.ResponseWriter, hr HttpResponseSuccess) {
 	setJsonHeaders(w)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(hr)
@@ -80,19 +105,28 @@ func customHandler(f func(http.ResponseWriter, *http.Request) error) http.Handle
 func decodeFormToTask(form url.Values, task *Task) error {
 	for k, v := range form {
 		switch k {
-		case "id":
-			id, err := strconv.Atoi(v[0])
+		case "name":
+			task.Name = v[0]
+		case "description":
+			task.Description = v[0]
+		case "priority":
+			priority, err := strconv.Atoi(v[0])
 
 			if err != nil {
 				return fmt.Errorf("task-decodeFormToTask(): Could convert id %s to int", v[0])
 			}
 
-			task.ID = id
-		case "name":
-			task.Name = v[0]
+			task.Priority = uint8(priority)
+		case "tags":
+			task.Tags = []string{v[0]}
 		}
 	}
 	return nil
+}
+
+func updateDate(task *Task) {
+	task.UpdatedAt = time.Now()
+	task.CreatedAt = time.Now()
 }
 
 func getTaskIdFromPath(r *http.Request) (int, error) {
@@ -113,14 +147,15 @@ func getTaskIdFromPath(r *http.Request) (int, error) {
 
 func RegisterHandlers(r *http.ServeMux, service Service) {
 	handler := newHandler(service)
-	r.HandleFunc("GET /tasks/{id}", customHandler(handler.get))
-	r.HandleFunc("POST /tasks", customHandler(handler.post))
-	r.HandleFunc("PUT /tasks/{id}", customHandler(handler.put))
-	r.HandleFunc("DELETE /tasks/{id}", customHandler(handler.delete))
+	r.HandleFunc("GET /task/latest/", customHandler(handler.getLatest))
+	r.HandleFunc("GET /task/{id}", customHandler(handler.get))
+	r.HandleFunc("POST /task/", customHandler(handler.post))
+	r.HandleFunc("PUT /task/{id}", customHandler(handler.put))
+	r.HandleFunc("DELETE /task/{id}", customHandler(handler.delete))
 }
 
 func (h *handler) post(w http.ResponseWriter, r *http.Request) error {
-	err := r.ParseForm()
+	err := r.ParseMultipartForm(1024)
 
 	if err != nil {
 		return httpError.BadRequest("Unable to parse request body. Please check your body.")
@@ -133,7 +168,8 @@ func (h *handler) post(w http.ResponseWriter, r *http.Request) error {
 		return httpError.BadRequest("Body contains invalid attributes for the task object.")
 	}
 
-	err = h.service.Create(task)
+	updateDate(&task)
+	task, err = h.service.Create(task)
 
 	if err != nil {
 		return httpError.InternalServerError("An unexpected error occurred while creating the task")
@@ -157,6 +193,31 @@ func (h *handler) get(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	jsonSuccess(w, newHttpResponseSuccess(&task))
+	return nil
+}
+
+func (h *handler) getLatest(w http.ResponseWriter, r *http.Request) error {
+	query := r.URL.Query()
+
+	countStr := query.Get("count")
+
+	if countStr == "" {
+		return httpError.BadRequest("count parameter is missing")
+	}
+
+	count, err := strconv.Atoi(countStr)
+
+	if err != nil {
+		return httpError.BadRequest("count parameter is not valid")
+	}
+
+	tasks, err := h.service.GetLatest(count)
+
+	if err != nil {
+		return httpError.InternalServerError("An expected error occurred while retriving latest tasks")
+	}
+
+	jsonSuccess(w, newHttpResponseSuccessMultiple(tasks))
 	return nil
 }
 

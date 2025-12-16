@@ -30,6 +30,16 @@ func newTaskLogger() *taskLogger {
 	}
 }
 
+func corsMiddleware(mux *http.ServeMux) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// TODO: Do not use universal wildcard
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		mux.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	taskLogger := newTaskLogger()
 
@@ -42,9 +52,10 @@ func main() {
 	}
 
 	router := http.NewServeMux()
+	handler := corsMiddleware(router)
 	httpServer := http.Server{
 		Addr:    address,
-		Handler: router,
+		Handler: handler,
 	}
 
 	task.RegisterHandlers(router, task.NewService(db))

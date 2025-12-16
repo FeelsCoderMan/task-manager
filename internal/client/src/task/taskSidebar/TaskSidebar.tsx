@@ -1,27 +1,26 @@
-import { ReactEventHandler, useState } from "react";
+import { ReactEventHandler, useEffect, useState } from "react";
 import { ReactComponent as Plus } from "./plus.svg";
 import TaskList from "../taskList/TaskList";
 import "./TaskSidebar.css";
-
-function populateExampleTaskList() {
-  return [
-    {
-      id: "1",
-      name: "Task1",
-    },
-    {
-      id: "2",
-      name: "Task2",
-    },
-  ];
-}
+import { Task } from "../../types/types";
+import { getLatestTasks } from "../../services/api";
 
 interface TaskSidebarParams {
   openModal: ReactEventHandler;
 }
 
 function TaskSidebar({ openModal }: TaskSidebarParams) {
-  const [recentTasks, setRecentTasks] = useState(populateExampleTaskList());
+  const [recentTasks, setRecentTasks] = useState<Task[]>([]);
+
+  useEffect(() => {
+    const fetchLatestTasks = async () => {
+      const serviceResponse = await getLatestTasks();
+      if (serviceResponse.success) {
+        setRecentTasks(serviceResponse.tasks);
+      }
+    };
+    fetchLatestTasks();
+  }, []);
 
   return (
     <div className="task-sidebar-header">

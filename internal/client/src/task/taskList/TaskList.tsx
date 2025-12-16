@@ -15,7 +15,7 @@ function TaskList({ tasks }: TaskListProps) {
       <h2 className="task-list-title">Recent Tasks</h2>
       <div className="task-list">
         {tasks.map((task) => (
-          <TaskListEl task={task} />
+          <TaskListEl key={task.id} task={task} />
         ))}
       </div>
     </>
@@ -25,10 +25,14 @@ function TaskList({ tasks }: TaskListProps) {
 function TaskListEl({ task }: TaskListElProps) {
   return (
     <div className="task-list-el-container">
-      <div className="task-list-circle"></div>
-      <div id={"task-" + task.id} className="task-list-el">
-        {task.name}
-      </div>
+      <button
+        type="button"
+        className="task-list-el-button"
+        id={"task-" + task.id}
+      >
+        <div className="task-list-circle"></div>
+        <div className="task-name">{task.name}</div>
+      </button>
     </div>
   );
 }

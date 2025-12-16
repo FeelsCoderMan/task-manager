@@ -50,12 +50,14 @@ h1 {
     border: none;
     background: transparent;
     cursor: pointer;
+    width: 25px;
+    height: 30px;
 }
 
 .task-dialog-submit-button {
     display: block;
     text-align: center;
-    border: solid 1px #000;
+    border: solid 1px #fff;
     border-radius: 10px;
     background: transparent;
     cursor: pointer;
@@ -65,4 +67,11 @@ h1 {
 
 dialog::backdrop {
     backdrop-filter: blur(1px);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .task-dialog-close-button:hover {
+        background-color: rgba(255, 255, 255, 0.18);
+        border-radius: 10px;
+    }
 }
